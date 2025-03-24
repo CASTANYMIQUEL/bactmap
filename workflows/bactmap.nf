@@ -70,6 +70,7 @@ include { BWA_INDEX } from '../modules/nf-core/software/bwa/index/main' addParam
 include { BWA_MEM   } from '../modules/nf-core/software/bwa/mem/main'   addParams( options: modules['bwa_mem'] )
 include { GUBBINS   } from '../modules/nf-core/software/gubbins/main'   addParams( options: modules['gubbins'] )
 include { SNPSITES  } from '../modules/nf-core/software/snpsites/main'  addParams( options: modules['snpsites'] )
+include { SAMTOOLS_INDEX } from '../modules/nf-core/software/samtools/index/main' addParams( options: modules['samtools_index'])
 
 /*
 ========================================================================================
@@ -143,6 +144,15 @@ workflow BACTMAP {
         ch_reference
     )
     ch_software_versions = ch_software_versions.mix(VARIANTS_BCFTOOLS.out.bcftools_version.first().ifEmpty(null))
+
+    //
+    // MODULE: Samtools indexing
+    //
+    SAMTOOLS_INDEX (
+        ch_bams_with_meta
+    )
+    ch_software_versions = ch_software_versions.mix(SAMTOOLS_INDEX.out.version.first().ifEmpty(null))
+    ch_indexed_bams = SAMTOOLS_INDEX.out.ba
 
     //
     // MODULE: Make pseudogenome from VCF
